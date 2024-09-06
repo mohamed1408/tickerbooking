@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TicketBooking.Models
 {
@@ -14,5 +15,9 @@ namespace TicketBooking.Models
 
         [DataType(DataType.Date)]
         public DateTime To { get; set; }
+        public int Status { get; set; }
+
+        [NotMapped]
+        public Hotel? Hotel { get; set; }
     }
 }

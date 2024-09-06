@@ -59,10 +59,10 @@ namespace TicketBooking.Controllers
             return Redirect("/Home/Search");
         }
 
-        public IActionResult SignOut()
+        public async Task<IActionResult> SignOut()
         {
-            HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok(new { success = true });
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Login", "Auth");
         }
         public ActionResult Register()
         {

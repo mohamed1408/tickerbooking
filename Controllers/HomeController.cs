@@ -55,9 +55,37 @@ namespace TicketBooking.Controllers
                 return StatusCode(500, e);
             }
         }
+        public IActionResult CancelBooking(int id) 
+        {
+            try
+            {
+                Booking booking = db.Bookings.FirstOrDefault(c => c.Id == id);
+                booking.Status = -1;
+                db.SaveChanges();
+                return RedirectToAction("Profile","Home");
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e);
+            }
+        }
         public IActionResult Profile()
         {
-            return View();
+            int UserId = Int32.Parse(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier).Value);
+            User user = db.Users.Find(UserId);
+            List<Booking> bookings = db.Bookings.Where(x => x.UserId == UserId).ToList();
+            bookings = bookings.OrderByDescending(x => x.Status).ThenByDescending(x => x.Id).ToList();
+            List<Hotel> hotels = db.Hotels.Where(x => bookings.Select(b => b.HotelId).Contains(x.Id)).ToList();
+            foreach (var item in bookings)
+            {
+                item.Hotel = hotels.Find(x => x.Id == item.HotelId);
+            }
+            ProfileModel model = new ProfileModel
+            {
+                user = user,
+                bookings = bookings
+            };
+            return View(model);
         }
         public IActionResult Privacy()
         {

@@ -1,22 +1,27 @@
 ﻿@model TicketBooking.Models.ProfileModel
 
-<div class="row">
-    <div class="left-panel">
-        <ul class="navbar-nav flex-grow-1">
-            <li class="nav-item">
-                <a class="nav-link text-dark">My Bookings</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-dark">Settings</a>
-            </li>
-        </ul>
-    </div>
-    <div class="right-panel">
-        <div id="bookings">
+<h4>Hi @Model.user.Name, Your Bookings</h4>
 
-        </div>
-        <div id="settings">
-
+@foreach (Booking bkng in Model.bookings)
+{
+    <div class="card my-2">
+        <div class="card-body d-flex">
+            <div class="col-xl-8 text-xl-start">
+                <h6>@bkng.Hotel.Name</h6>
+                <p>@bkng.Hotel.Address</p>
+            </div>
+            <div class="col-xl-4 text-end">
+                @bkng.From.ToString("D") to @bkng.To.ToString("D")
+                @if(bkng.Status == -1)
+                {
+                    <p class="text-danger fst-italic">Cancelled</p>
+                }
+                else
+                {
+                    <a class="btn btn-danger mt-2" asp-area="" asp-controller="Home" asp-action="CancelBooking" asp-route-id="@bkng.Id">Cancel Booking</a>
+                }
+            </div>
         </div>
     </div>
-</div>
+}
+

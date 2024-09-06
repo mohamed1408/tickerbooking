@@ -1,0 +1,90 @@
+﻿@model TicketBooking.Views.Home.SearchModel
+
+<form method="get" action="Search">
+    <div class="row">
+        <div class="col-xl-4">
+            <label>Location</label>
+            <input class="form-control" type="text" id="location" name="location" value="" />
+        </div>
+        <div class="col-xl-4">
+            <label>Duration</label>
+            <input type="text" id="duration" name="daterange" class="form-control" />
+            <input type="hidden" id="from" name="from" class="form-control" />
+            <input type="hidden" id="to" name="to" class="form-control" />
+        </div>
+        <div class="col-xl-4">
+            <br />
+            <button type="submit" class="search-btn">Search</button>
+        </div>
+    </div>
+</form>
+<hr />
+<div class="container text-center">
+    @if(Model.SearchResults.Count == 0)
+    {
+        <p>No results found</p>
+    }
+    @foreach(Hotel htl in Model.SearchResults)
+    {
+        <div class="card my-2">
+            <div class="card-body d-flex">
+                <div class="col-xl-9 text-xl-start">
+                    <h6>@htl.Name</h6>
+                    <p>@htl.Address</p>
+                </div>
+                <div class="col-xl-3 d-flex">
+                    <button class="btn btn-danger m-auto" onclick="book(this,@htl.Id)">Book Now</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+<script>
+    let searchParams = {
+        location: '@Model.Location',
+        from: '@Model.From',
+        to: '@Model.To'
+    }
+    console.log(searchParams)
+    console.log(moment(searchParams.from))
+    console.log(moment(searchParams.to))
+    $("#from").val(searchParams.from ? moment(searchParams.from).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'))
+    $("#to").val(searchParams.to ? moment(searchParams.to).format('YYYY-MM-DD') : moment().format('YYYY-MM-DD'))
+    $("#location").val(searchParams.location)
+    $('input[name="daterange"]').daterangepicker({
+        opens: 'left',
+        startDate: moment(searchParams.from),
+        endDate: moment(searchParams.to)
+    }, function (start, end, label) {
+        searchParams.from = start.format('YYYY-MM-DD')
+        searchParams.to = end.format('YYYY-MM-DD')
+        $("#from").val(start.format('YYYY-MM-DD'))
+        $("#to").val(end.format('YYYY-MM-DD'))
+        // Callback function that is triggered when a date range is selected
+        console.log("Selected start date: " + start.format('MM/DD/YYYY'));
+        console.log("Selected end date: " + end.format('MM/DD/YYYY'));
+    });
+    const book = (e, hotelId) => {
+        console.log(e, hotelId)
+        e.disabled = true
+        e.innerHTML = '<i class="fa fa-circle-o-notch fa-spin" style="font-size:24px"></i> Booking...'
+        $.ajax({
+            url: '@Url.Action("BookHotel", "Home")',
+            type: 'GET',
+            data: {
+                id: hotelId,
+                from: $("#from").val(),
+                to: $("#to").val()
+            },
+            success: function (response) {
+                // Update the results div with the response HTML
+                console.log(response)
+                window.location.href = response.redirecturl;
+            },
+            error: function (xhr, status, error) {
+                console.error("An error occurred: " + error);
+                alert("Something went wrong!!")
+            }
+        })
+    }
+</script>
